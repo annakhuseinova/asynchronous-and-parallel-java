@@ -1,0 +1,6 @@
+com/annakhuseinova/parallelstreams/ArraySpliteratorExampleTest.java
+ com.annakhuseinova.parallelstreams.ArraySpliteratorExampleTest
+com/annakhuseinova/service/CheckoutServiceTest.java
+ com.annakhuseinova.service.CheckoutServiceTest
+com/annakhuseinova/parallelstreams/ParallelStreamsExampleTest.java
+ com.annakhuseinova.parallelstreams.ParallelStreamsExampleTest
