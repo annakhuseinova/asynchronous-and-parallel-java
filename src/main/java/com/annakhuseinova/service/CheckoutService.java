@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import static com.annakhuseinova.domain.CheckoutStatus.*;
 import static com.annakhuseinova.util.CommonUtil.startTimer;
 import static com.annakhuseinova.util.CommonUtil.timeTaken;
+import static java.util.stream.Collectors.summingDouble;
 
 public class CheckoutService {
 
@@ -34,7 +35,18 @@ public class CheckoutService {
        if (priceValidationList.size() > 0){
            return new CheckoutResponse(FAILURE, priceValidationList);
        }
+       double finalPrice = calculateFinalPrice(cart);
        timeTaken();
         return new CheckoutResponse(SUCCESS);
+    }
+
+    private double calculateFinalPrice(Cart cart){
+        return cart.getCartItemList().parallelStream().map(cartItem -> cartItem.getQuantity() * cartItem.getRate()).
+                mapToDouble(Double::doubleValue).sum();
+    }
+
+    private double calculateFinalPrice_reduce(Cart cart){
+        return cart.getCartItemList().parallelStream().map(cartItem -> cartItem.getQuantity()  * cartItem.getRate())
+                .reduce(0.0, Double::sum);
     }
 }
