@@ -38,4 +38,54 @@ public class CompletableFutureHelloWorldException {
         timeTaken();
         return helloWorld;
     }
+
+    public String helloWorld_3_async_calls_handle_exception_exceptionally() {
+        startTimer();
+
+        CompletableFuture<String> hello = CompletableFuture.supplyAsync(() -> helloWorldService.hello());
+        CompletableFuture<String> world = CompletableFuture.supplyAsync(() -> helloWorldService.world());
+        CompletableFuture<String> hiCompletableFuture = CompletableFuture.supplyAsync(() -> {
+            delay(1000);
+            return "Hi, CompletableFuture!";
+        });
+        String helloWorld = hello
+                .exceptionally((exception)-> {
+            System.out.println("Exception is :" + exception.getMessage());
+            return "";
+        })
+                .thenCombine(world, (h, w) -> h + w)
+                .exceptionally((exception)-> {
+                    System.out.println(exception.getMessage());
+                    return "";
+                })
+                .thenCombine(hiCompletableFuture, (previous, current) -> previous + current)
+                .thenApply(String::toUpperCase)
+                .join();
+        timeTaken();
+        return helloWorld;
+    }
+
+    public String helloWorld_3_async_calls_handle_exception_whenComplete() {
+        startTimer();
+
+        CompletableFuture<String> hello = CompletableFuture.supplyAsync(() -> helloWorldService.hello());
+        CompletableFuture<String> world = CompletableFuture.supplyAsync(() -> helloWorldService.world());
+        CompletableFuture<String> hiCompletableFuture = CompletableFuture.supplyAsync(() -> {
+            delay(1000);
+            return "Hi, CompletableFuture!";
+        });
+        String helloWorld = hello
+                .whenComplete((result, exception)-> {
+                    System.out.println("Exception is :" + exception.getMessage());
+                })
+                .thenCombine(world, (h, w) -> h + w)
+                .whenComplete((result, exception)-> {
+                    System.out.println(exception.getMessage());
+                })
+                .thenCombine(hiCompletableFuture, (previous, current) -> previous + current)
+                .thenApply(String::toUpperCase)
+                .join();
+        timeTaken();
+        return helloWorld;
+    }
 }
