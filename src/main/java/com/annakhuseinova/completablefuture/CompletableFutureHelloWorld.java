@@ -4,6 +4,8 @@ import com.annakhuseinova.service.HelloWorldService;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static com.annakhuseinova.util.CommonUtil.*;
 
@@ -137,6 +139,31 @@ public class CompletableFutureHelloWorld {
            return null;
         }).join();
         return result;
+    }
+
+    public String helloWorld_3_async_calls_custom_threadpool_async(){
+        ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        startTimer();
+        CompletableFuture<String> hello = CompletableFuture.supplyAsync(()-> this.helloWorldService.hello(), executorService);
+        CompletableFuture<String> world = CompletableFuture.supplyAsync(()-> this.helloWorldService.world(), executorService);
+
+        CompletableFuture<String> hiCompletableFuture = CompletableFuture.supplyAsync(()-> {
+           delay(1000);
+           return "Hi, CompletableFuture!";
+        }, executorService);
+
+        String hw = hello.thenCombineAsync(world, (h,w)-> {
+            System.out.println("thenCombine h/w");
+            return h + w;
+        }, executorService)
+                .thenCombineAsync(hiCompletableFuture, (previous, current)-> {
+                    System.out.println("the Combine, previous/current");
+                    return previous + current;
+                }, executorService).thenApply(s -> {
+                    System.out.println("Then apply");
+                    return s.toUpperCase();
+                }).join();
+        return hw;
     }
 
     public static void main(String[] args) {
