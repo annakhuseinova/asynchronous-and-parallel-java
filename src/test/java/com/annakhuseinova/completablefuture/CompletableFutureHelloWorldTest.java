@@ -50,4 +50,12 @@ class CompletableFutureHelloWorldTest {
 
         timeTaken();
     }
+
+    @Test
+    void anyOf() {
+        startTimer();
+        String result = completableFutureHelloWorld.anyOf();
+        timeTaken();
+        assertEquals("Hello, World!", result);
+    }
 }

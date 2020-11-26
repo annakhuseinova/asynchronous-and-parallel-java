@@ -2,6 +2,7 @@ package com.annakhuseinova.completablefuture;
 
 import com.annakhuseinova.service.HelloWorldService;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import static com.annakhuseinova.util.CommonUtil.*;
@@ -103,6 +104,39 @@ public class CompletableFutureHelloWorld {
         return CompletableFuture.supplyAsync(() -> helloWorldService.hello())
                 .thenCompose((previous)-> helloWorldService.worldFuture(previous))
                 .thenApply(String::toUpperCase);
+    }
+
+    // Make these three calls but take result from the one that receives the result faster. The slower responses will be
+    // abandoned automatically.
+    public String anyOf(){
+        //db
+        CompletableFuture<String> dbCall = CompletableFuture.supplyAsync(()-> {
+            delay(1000);
+            System.out.println("Response from db");
+            return "Hello, World";
+        });
+        // restCall
+        CompletableFuture<String> restCall = CompletableFuture.supplyAsync(()-> {
+            delay(2000);
+            System.out.println("Response from rest service");
+            return "Hello, World";
+        });
+        // soapCall
+        CompletableFuture<String> soapCall = CompletableFuture.supplyAsync(()-> {
+            delay(3000);
+            System.out.println("Response from soap service");
+            return "Hello, World";
+        });
+        List<CompletableFuture<String>> completableFutureList = List.of(dbCall, restCall, soapCall);
+        CompletableFuture<Object> cfAnyOf =
+                CompletableFuture.anyOf(completableFutureList.toArray(new CompletableFuture[completableFutureList.size()]));
+        String result = (String) cfAnyOf.thenApply(v -> {
+           if (v instanceof String){
+               return v;
+           }
+           return null;
+        }).join();
+        return result;
     }
 
     public static void main(String[] args) {
